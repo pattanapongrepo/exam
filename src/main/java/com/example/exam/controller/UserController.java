@@ -4,6 +4,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,15 +23,11 @@ import java.nio.file.Paths;
 @RequestMapping("/users")
 public class UserController {
     @GetMapping("download")
-    public void download(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void download(HttpServletRequest request, HttpServletResponse response) throws IOException, URISyntaxException {
 
-        // The file to be downloaded.
-//        Path file = this.getClass().getResourceAsStream("report/sample.pdf").;
-
-        ClassPathResource classPathResource = new ClassPathResource("report/sample.pdf");
 
 //        InputStream inputStream = classPathResource.getInputStream();
-        Path file = classPathResource.getFile().toPath();
+        Path file = Path.of(ClassLoader.getSystemResource("report/sample.pdf").toURI());
 
         // Get the media type of the file
         String contentType = Files.probeContentType(file);
