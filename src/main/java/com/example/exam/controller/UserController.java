@@ -23,7 +23,7 @@ public class UserController {
     public void download(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         // The file to be downloaded.
-        Path file = new ClassPathResource("/report/sample.pdf").getFile().toPath();
+        Path file = new ClassPathResource("report/sample.pdf").getFile().toPath();
 
         // Get the media type of the file
         String contentType = Files.probeContentType(file);
