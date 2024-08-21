@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,7 +24,12 @@ public class UserController {
     public void download(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         // The file to be downloaded.
-        Path file = new ClassPathResource("report/sample.pdf").getFile().toPath();
+//        Path file = this.getClass().getResourceAsStream("report/sample.pdf").;
+
+        ClassPathResource classPathResource = new ClassPathResource("report/sample.pdf");
+
+//        InputStream inputStream = classPathResource.getInputStream();
+        Path file = classPathResource.getFile().toPath();
 
         // Get the media type of the file
         String contentType = Files.probeContentType(file);
