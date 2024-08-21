@@ -1,39 +1,47 @@
 package com.example.exam.controller;
 
-import com.example.exam.entities.User;
-import com.example.exam.service.UserService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final UserService userService;
+    @GetMapping("download")
+    public void download(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
+        // The file to be downloaded.
+        Path file = new ClassPathResource("/report/sample.pdf").getFile().toPath();
 
-    @GetMapping("/getAll")
-    public List<User> getAll() {
-        return userService.getAll();
-    }
-
-    @GetMapping("/findById/{id}")
-    public ResponseEntity<User> findById(@PathVariable("id") Integer id){
-        return new ResponseEntity<>(userService.findById(id), HttpStatus.OK);
-    }
-    
-    public static void main(String[] args){
-
-        
+        // Get the media type of the file
+        String contentType = Files.probeContentType(file);
+        if (contentType == null) {
+            // Use the default media type
+            contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+        }
+        response.setContentType(contentType);
+        // File Size
+        response.setContentLengthLong(Files.size(file));
+        /**
+         * Building the Content-Disposition header with the ContentDisposition utility class can avoid the problem of garbled downloaded file names.
+         */
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
+                .filename(file.getFileName().toString(), StandardCharsets.UTF_8)
+                .build()
+                .toString());
+        // Response data to the client
+        Files.copy(file, response.getOutputStream());
     }
 }
