@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -26,25 +27,25 @@ public class UserController {
     @GetMapping("download")
     public void download(HttpServletRequest request, HttpServletResponse response) throws IOException, URISyntaxException {
 
-        Resource resource = new ClassPathResource("report/sample.pdf");
+        File file = ResourceUtils.getFile("classpath:report/sample.pdf");
 
         // Get the media type of the file
-        String contentType = Files.probeContentType(resource.getFile().toPath());
+        String contentType = Files.probeContentType(file.toPath());
         if (contentType == null) {
             // Use the default media type
             contentType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
         }
         response.setContentType(contentType);
         // File Size
-        response.setContentLengthLong(Files.size(resource.getFile().toPath()));
+        response.setContentLengthLong(Files.size(file.toPath()));
         /**
          * Building the Content-Disposition header with the ContentDisposition utility class can avoid the problem of garbled downloaded file names.
          */
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment()
-                .filename(resource.getFile().toPath().getFileName().toString(), StandardCharsets.UTF_8)
+                .filename(file.toPath().getFileName().toString(), StandardCharsets.UTF_8)
                 .build()
                 .toString());
         // Response data to the client
-        Files.copy(resource.getFile().toPath(), response.getOutputStream());
+        Files.copy(file.toPath(), response.getOutputStream());
     }
 }
